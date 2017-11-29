@@ -1,0 +1,216 @@
+<!DOCTYPE HTML>
+<html lang="pt-br">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="./bootstrap/css/bootstrap.min.css"></link>
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!--[if lt IE 9]>
+	  <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+	  <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+	<![endif]-->
+    <!--JS-->
+
+    <script src="./js/jquery.min.js"></script>
+    <script src="./bootstrap/js/bootstrap.min.js"></script>
+    <script src="./js/bootstrap-add-clear.min.js"></script>
+	<title>Cálculo Média</title>
+	
+</head>
+	<body>
+
+		<div class="container" style="margin-top: 70px;">
+			<div class="form-horizontal">
+				
+				<div class="form-group">
+					<label class="col-md-4 control-label" for="m1">M1</label>  
+					<div class="col-md-4">
+						<input id="m1" name="m1" step="0.1" type="number" max="10" placeholder="M1" class="form-control input-lg hasclear" value="">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-4 control-label" for="b1">B1</label>  
+					<div class="col-md-4">
+						<input id="b1" name="b1" step="0.1" type="number" max="10" placeholder="B1" class="form-control input-lg hasclear" value="">
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-md-4 control-label" for="m2">M2</label>  
+					<div class="col-md-4">
+						<input id="m2" name="m2" step="0.1" type="number" max="10" placeholder="M2" class="form-control input-lg hasclear" value="">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-4 control-label" for="b2">B2</label>  
+					<div class="col-md-4">
+						<input id="b2" name="b2" step="0.1" type="number" max="10" placeholder="B2" class="form-control input-lg hasclear" value="">
+					</div>
+				</div>
+
+				<div class="form-group">
+					<div class="col-md-offset-4 col-md-4">
+						<button id="calcular" name="calcular" class="btn btn-primary btn-block btn-lg pull-right">Calcular</button>
+					</div>
+				</div>
+
+			</div>
+
+				<table class='table' id='table'>
+					<thead>
+						<th class='text-center'>M1</th>
+						<th class='text-center'>B1</th>
+						<th class='text-center'>M2</th>
+						<th class='text-center'>B2</th>
+						<th class='text-center'>Méd B1</th>
+						<th class='text-center'>Méd B2</th>
+						<th class='text-center'>Méd Fin</th>
+					</thead>
+
+					<tbody>
+						<td class='text-center' id='_m1'></td>
+						<td class='text-center' id='_b1'></td>
+						<td class='text-center' id='_m2'></td>
+						<td class='text-center' id='_b2'></td>
+						<td class='text-center' id='_mb1'></td>
+						<td class='text-center' id='_mb2'></td>
+						<td class='text-center' id='_mf'></td>
+					</tbody>
+
+				</table>
+
+				<h2 class='text-center' id="retorno"></h2>
+		</div>
+	</body>
+</html>
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+
+	$(".hasclear").addClear();
+
+	$("#calcular").click(function(){
+
+		var M1 = parseFloat($("#m1").val().replace(',','.')) || 0;
+		var B1 = parseFloat($("#b1").val().replace(',','.')) || 0;
+		var M2 = parseFloat($("#m2").val().replace(',','.')) || 0;
+		var B2 = parseFloat($("#b2").val().replace(',','.')) || 0;
+
+
+		var notas = calcular(M1,B1,M2,B2);
+		var retorno = "";
+		var auxNotas;
+		var aux_B2;
+
+
+		if(notas.MF < 5 && notas.B2 == 0){
+							
+			for(aux_B2 = 0; aux_B2 <= 10; aux_B2 += 0.01){
+
+				auxNotas = calcular(M1,B1,M2,aux_B2);
+
+				if(auxNotas.MF >= 5) break;
+				
+			}
+			
+			retorno = "Atenção! Para ficar com Média Final <b style='color: red'>"+auxNotas.MF+"</b>, você deve tirar na B2 <b style='color: red'>"+auxNotas.B2+"</b>";
+			
+			if(auxNotas.B2 > 10)
+				retorno += " (Impossivel!)";
+
+		}
+		else if(notas.MF < 5 && notas.B2 > 0)
+		{
+
+			var _B1_aux_notas;
+			var _B2_aux_notas;
+			var onde;
+			var nsub;
+
+			for(var _B1 = 0; _B1 <= 10; _B1 += 0.01){
+				
+				_B1_aux_notas = calcular(notas.M1, _B1, notas.M2, notas.B2);
+				
+				if(_B1_aux_notas.MF >= 5) break;
+
+			}
+
+			for(var _B2 = 0; _B2 <= 10; _B2 += 0.01){
+				
+				_B2_aux_notas = calcular(notas.M1, notas.B1, notas.M2, _B2);
+				
+				if(_B2_aux_notas.MF >= 5) break;
+
+			}
+
+			if(_B2_aux_notas.B2 < _B1_aux_notas.B1)
+			{
+				onde = 'B2';
+				nsub = _B2_aux_notas.B2;
+			}
+			else
+			{
+				onde = 'B1';
+				nsub = _B1_aux_notas.B1;
+			}
+
+			retorno = "Atenção! Para ficar com Média Final <b style='color: red'>5.0</b>, você deve tirar <b style='color: red'>"+nsub+"</b> na <b style='color: red'>Sub</b> e substituir a <b style='color: red'>"+onde+"</b>";
+
+
+
+		}
+
+		$("#retorno").html(retorno);
+
+		$("#_m1").html(notas.M1);
+		$("#_b1").html(notas.B1);
+		$("#_m2").html(notas.M2);
+		$("#_b2").html(notas.B2);
+		$("#_mb1").html(notas.MB1);
+		$("#_mb2").html(notas.MB2);
+		$("#_mf").html(notas.MF);
+
+		$("#table>tbody>tr>td").each(function(index, el) {
+			
+			if(parseFloat($(el).html()) < 5)
+			{
+				$(el).addClass('text-danger');
+			}
+			else
+			{
+				$(el).removeClass('text-danger');
+			}
+
+		});
+
+
+	});
+
+});
+
+
+function calcular(M1, B1, M2, B2)
+{
+
+	M1 = Number(M1).toFixed(2)/1;
+	B1 = Number(B1).toFixed(2)/1;
+	M2 = Number(M2).toFixed(2)/1;
+	B2 = Number(B2).toFixed(2)/1;
+
+
+	var MB1 = ((M1*0.4) + (B1*0.6)).toFixed(2)/1;
+	
+	var MB2 = ((M2*0.4) + (B2*0.6)).toFixed(2)/1;
+	
+	var MF =  (((MB1*2) + (MB2*3))/5).toFixed(2)/1;
+
+
+	var retorno = {M1:M1,B1:B1,M2:M2,B2:B2,MB1:MB1,MB2:MB2,MF:MF};
+
+	return retorno;
+
+}
+
+</script>
