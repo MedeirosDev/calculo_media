@@ -1,5 +1,5 @@
 # Aplicação
-[https://MedeirosDev.github.io/calculo_media/](https://MedeirosDev.github.io/calculo_media/)
+[https://medeiroz.github.io/calculo_media/](https://medeiroz.github.io/calculo_media/)
 
 # calculo_media
 
